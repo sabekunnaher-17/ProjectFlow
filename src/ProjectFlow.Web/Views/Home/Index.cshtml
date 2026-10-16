@@ -1,11 +1,3 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<section class="py-5">
-    <span class="badge text-bg-primary mb-3">ProjectFlow</span>
-    <h1 class="display-4 fw-bold">Clear projects. Focused teams.</h1>
-    <p class="lead">Project and task management built with ASP.NET Core, Identity, and SQL Server.</p>
-    <p>The verified application foundation is available. Feature delivery is tracked in the development roadmap.</p>
-    <a class="btn btn-primary" href="https://github.com/sabekunnaher-17/ProjectFlow/blob/main/docs/DEVELOPMENT_ROADMAP.md">View implementation progress</a>
-</section>
+@{ ViewData["Title"] = "Clear projects. Focused teams."; }
+<section class="hero"><p class="eyebrow">From intention to progress</p><h1>A clear path from<br />plan to done.</h1><p class="lead mt-4">Bring your people, projects and priorities together. ProjectFlow gives every task a home and every team a shared view of what comes next.</p><div class="d-flex flex-wrap gap-3 mt-4"><a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create your workspace</a><a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Login">Sign in</a></div></section>
+<section class="row g-4 mb-5" aria-label="ProjectFlow features"><div class="col-md-4"><article class="card h-100"><div class="card-body"><p class="eyebrow">01 / Organize</p><h2 class="h4">Projects with purpose</h2><p class="text-muted mb-0">Set dates, invite registered teammates and give every project an accountable manager.</p></div></article></div><div class="col-md-4"><article class="card h-100"><div class="card-body"><p class="eyebrow">02 / Focus</p><h2 class="h4">Work that moves</h2><p class="text-muted mb-0">Assign priorities, track tasks through a Kanban board and discuss the details in context.</p></div></article></div><div class="col-md-4"><article class="card h-100"><div class="card-body"><p class="eyebrow">03 / Understand</p><h2 class="h4">Progress in perspective</h2><p class="text-muted mb-0">See real project counts, upcoming work and activity. Export filtered reports when you need a wider view.</p></div></article></div></section>

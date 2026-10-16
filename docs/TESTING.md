@@ -50,3 +50,11 @@ admin denial/role overposting, deactivation/session invalidation, stale stamps a
 last-active-admin protection. SQL CI also submits two simultaneous self-demotions
 and requires exactly one success, leaving an active administrator. Deadline-worker
 scheduling itself is not simulated; tests call the same sweep service directly.
+
+M7 adds development OpenAPI and anonymous static-asset checks. The optional Chromium
+journey uses a real Kestrel port and SQL fixture. CI installs Chromium only on its
+disposable runner, sets `PROJECTFLOW_BROWSER_TESTS=1`, and exercises MVC registration,
+login, organization/project/task forms, Fetch status changes, comments, edit values,
+Kanban, mobile navigation, overflow and logout. It captures real fixture screenshots
+under runner temporary storage and uploads a seven-day artifact. No Windows browser
+installation or policy change is required. Local skips are explicit, not coverage.

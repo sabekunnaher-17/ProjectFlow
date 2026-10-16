@@ -8,7 +8,7 @@
 - [x] M4: tasks, assignment, transitions, filters/pagination and Kanban; CI verified, including parallel SQL writes (3f4ce11).
 - [x] M5: database dashboard, comments, activity, reports and safe CSV export.
 - [x] M6: in-app notifications, idempotent deadlines and protected administration (SQL race checks run in CI).
-- [ ] M7: responsive UI/accessibility and development OpenAPI.
+- [ ] M7: responsive UI/accessibility and development OpenAPI implemented; Chromium CI journey pending.
 - [ ] M8: complete automated/security verification and setup documentation.
 
 Each increment must build and pass its relevant tests before committing. Completion

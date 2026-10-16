@@ -1,3 +1,7 @@
+document.querySelectorAll('.app-sidebar nav a').forEach(link => {
+    if (link.pathname.toLowerCase() === window.location.pathname.toLowerCase()) link.setAttribute('aria-current', 'page');
+});
+
 document.addEventListener('submit', event => {
     const message = event.target.dataset.confirm;
     if (message && !window.confirm(message)) event.preventDefault();

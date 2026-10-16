@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 builder.Services.AddProblemDetails();
+builder.Services.AddOpenApi("v1", o => o.ShouldInclude = d => d.RelativePath?.StartsWith("api/v1/", StringComparison.Ordinal) == true);
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
@@ -108,13 +109,10 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStatusCodePages(async status =>
-{
-    if (!status.HttpContext.Request.Path.StartsWithSegments("/api"))
-        await status.HttpContext.Response.WriteAsync("Request unavailable. Return to the home page or sign in.");
-});
+app.UseWhen(c => !c.Request.Path.StartsWithSegments("/api"), branch => branch.UseStatusCodePagesWithReExecute("/Home/Status/{0}"));
+if (app.Environment.IsDevelopment()) app.MapOpenApi().AllowAnonymous();
 
-app.MapStaticAssets();
+app.MapStaticAssets().AllowAnonymous();
 app.MapGet("/health/live", () => Results.Ok(new { status = "healthy" })).AllowAnonymous();
 
 app.MapControllerRoute(

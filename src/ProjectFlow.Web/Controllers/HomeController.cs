@@ -19,6 +19,12 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpGet] public IActionResult Status(int id)
+    {
+        Response.StatusCode = id is >= 400 and <= 599 ? id : 404;
+        return View("Status", Response.StatusCode);
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

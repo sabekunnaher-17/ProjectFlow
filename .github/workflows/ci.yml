@@ -35,7 +35,19 @@ jobs:
           test "$ready" = true
           echo "PROJECTFLOW_TEST_SQL_SERVER=Server=127.0.0.1,14333;Database=master;User Id=sa;Password=$sql_password;Encrypt=True;TrustServerCertificate=True" >> "$GITHUB_ENV"
       - run: dotnet restore --locked-mode
-      - run: dotnet test tests/ProjectFlow.IntegrationTests --configuration Release
+      - run: dotnet build --no-restore --configuration Release
+      - name: Install browser on disposable CI runner only
+        run: pwsh tests/ProjectFlow.IntegrationTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+      - run: dotnet test tests/ProjectFlow.IntegrationTests --no-build --configuration Release
+        env:
+          PROJECTFLOW_BROWSER_TESTS: "1"
+          PROJECTFLOW_SCREENSHOTS: ${{ runner.temp }}/projectflow-screenshots
+      - uses: actions/upload-artifact@v7
+        with:
+          name: projectflow-browser-screenshots
+          path: ${{ runner.temp }}/projectflow-screenshots
+          if-no-files-found: error
+          retention-days: 7
       - name: Remove only this runner's disposable container
         if: always()
         run: docker rm -f projectflow-sql

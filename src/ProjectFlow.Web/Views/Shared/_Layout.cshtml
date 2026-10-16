@@ -1,74 +1,30 @@
-﻿<!DOCTYPE html>
-<html lang="en">
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
-    <title>@ViewData["Title"] - ProjectFlow</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ProjectFlow.Web.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProjectFlow</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
-                            @if (User.IsInRole(ProjectFlow.Core.Enums.Roles.Admin)) { <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a></li> }
-                            <li class="nav-item"><a class="nav-link" asp-controller="Projects" asp-action="Index">Projects</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Tasks" asp-action="Index" asp-route-mine="true">My tasks</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Organizations" asp-action="Index">Organizations</a></li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <div class="d-flex align-items-center gap-2">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Profile">My profile</a>
-                        <form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-outline-secondary">Sign out</button></form>
-                    }
-                    else
-                    {
-                        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Sign in</a>
-                        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create account</a>
-                    }
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @if (TempData["Success"] is string success) { <div class="alert alert-success" role="status">@success</div> }
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ProjectFlow.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+<title>@ViewData["Title"] · ProjectFlow</title>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head><body>
+<a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>
+<header class="app-header"><div class="d-flex align-items-center gap-3">
+@if (User.Identity?.IsAuthenticated == true) { <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#workspace-nav" aria-controls="workspace-nav" aria-expanded="false" aria-label="Toggle workspace navigation">Menu</button> }
+<a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark" aria-hidden="true">P</span>ProjectFlow</a></div>
+<div class="d-flex align-items-center gap-2">
+@if (User.Identity?.IsAuthenticated == true) {
+<a class="btn btn-sm btn-outline-secondary" asp-controller="Account" asp-action="Profile">My profile</a>
+<form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-sm btn-dark">Sign out</button></form>
+} else { <a class="btn btn-sm btn-outline-secondary" asp-controller="Account" asp-action="Login">Sign in</a><a class="btn btn-sm btn-primary" asp-controller="Account" asp-action="Register">Create account</a> }
+</div></header>
+<div class="@(User.Identity?.IsAuthenticated == true ? "workspace-shell" : "public-shell")">
+@if (User.Identity?.IsAuthenticated == true) {
+<aside class="app-sidebar collapse d-lg-block" id="workspace-nav"><p class="nav-caption">WORKSPACE</p><nav aria-label="Workspace"><a asp-controller="Dashboard" asp-action="Index">Overview</a><a asp-controller="Projects" asp-action="Index">Projects</a><a asp-controller="Tasks" asp-action="Index" asp-route-mine="true">My tasks</a><a asp-controller="Organizations" asp-action="Index">Organizations</a><a asp-controller="Notifications" asp-action="Index">Notifications</a><a asp-controller="Reports" asp-action="Index">Reports</a>@if (User.IsInRole(ProjectFlow.Core.Enums.Roles.Admin)) { <a asp-controller="Admin" asp-action="Index">Administration</a> }</nav><div class="sidebar-note"><strong>A little clarity, every day.</strong><p class="mb-0 mt-2">One workspace for your next meaningful milestone.</p></div></aside>
+}
+<div class="main-column"><main id="main-content" tabindex="-1">
+@if (TempData["Success"] is string success) { <div class="alert alert-success" role="status">@success</div> }
+@RenderBody()</main><footer class="app-footer"><span>ProjectFlow · Focus on what matters</span><div class="d-flex gap-3"><a asp-controller="Home" asp-action="Privacy">Data & privacy</a>@if (HostEnvironment.EnvironmentName == "Development") { <a href="/openapi/v1.json">OpenAPI</a> }</div></footer></div></div>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script><script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body></html>

@@ -77,5 +77,8 @@ and their current activation are rechecked inside the serialized database operat
 Cookie-authenticated mutations require an antiforgery header, including APIs.
 Protected API requests return 401/403 rather than HTML login redirects. DTOs and
 bounded pagination are required; data access always enforces resource scope.
-Development Swagger/OpenAPI will document implemented endpoints, not invented
-responses. Validation errors use ProblemDetails; internal exception text is hidden.
+Development `/openapi/v1.json` documents implemented JSON endpoints and DTOs. It is
+not mapped in production. The authenticated API uses same-origin Identity cookies;
+obtain the CSRF token as described above for mutations. No bearer-token flow or
+cross-origin access is offered. Validation errors use ProblemDetails; internal
+exception text is hidden. MVC controllers are excluded from the API document.
