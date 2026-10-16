@@ -4,14 +4,16 @@ A project and task management application delivered incrementally by Sabekunnahe
 
 ## Current state
 
-Milestones 0–5: layered .NET 10 MVC foundation, liveness endpoint, security headers,
+Milestones 0–6: layered .NET 10 MVC foundation, liveness endpoint, security headers,
 domain rules, SQL Server model and initial migration, automated domain/host/schema
 checks, reproducible dependency locks and CI. Identity registration/login/logout,
 profile editing, cookie/API CSRF, lockout and roles are implemented. Organizations,
 scoped projects, membership, search, edit concurrency and archiving are functional.
 Tasks support assignment, controlled statuses, priorities, dates, search, filtering,
 pagination, My Tasks and Kanban. Dashboard, scoped activity/comments and safe CSV
-reports use persistent data. Notifications/admin and final UI/API polish are next.
+reports use persistent data. In-app assignment/status/comment/deadline notifications,
+read state, role administration and account deactivation are implemented. Final
+UI/API polish and delivery verification are next.
 See [the roadmap](docs/DEVELOPMENT_ROADMAP.md).
 
 ## Stack and architecture

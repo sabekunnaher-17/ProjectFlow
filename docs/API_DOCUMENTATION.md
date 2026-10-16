@@ -61,7 +61,18 @@ Insight endpoints:
 Comments are append-only and archived projects are read-only. CSV export rejects
 oversized reports rather than truncating. Date ranges apply to due dates; all
 reports honor the same scope as task lists. Upcoming deadlines exclude terminal
-tasks before pagination. Remaining modules: notifications and admin/users.
+tasks before pagination.
+
+| Method | Route under `/api/v1` | Behavior |
+| --- | --- | --- |
+| GET | `/notifications?page=1&unread=false` | Current user's accessible notifications, 20 per page |
+| PUT | `/notifications/{id}/read` | Private, idempotent read marker; CSRF required |
+| GET | `/admin/users?keyword=&page=1` | Admin-only bounded user list |
+| PUT | `/admin/users/{id}` | Admin-only Role/IsActive/ConcurrencyStamp mutation |
+
+Admin edits replace global roles with one supported role; they invalidate the user's
+security stamp. Stale edits and last-active-admin removal return 409. Administrators
+and their current activation are rechecked inside the serialized database operation.
 
 Cookie-authenticated mutations require an antiforgery header, including APIs.
 Protected API requests return 401/403 rather than HTML login redirects. DTOs and

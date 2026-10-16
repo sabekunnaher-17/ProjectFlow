@@ -9,7 +9,7 @@ using TaskState = ProjectFlow.Core.Enums.TaskStatus;
 
 namespace ProjectFlow.Infrastructure.Services;
 
-public sealed class TaskService(ApplicationDbContext db, AccessService access, IActor actor, TimeProvider clock)
+public sealed class TaskService(ApplicationDbContext db, AccessService access, IActor actor, TimeProvider clock, NotificationEvents events)
 {
     public IQueryable<TaskItem> Scoped => db.Tasks.Where(t => access.Projects.Any(p => p.Id == t.ProjectId));
     public IQueryable<TaskItem> Filter(TaskQuery input)
@@ -48,6 +48,7 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
         var p = await access.ProjectAsync(input.ProjectId, true, ct); Writable(p);
         await ValidateAsync(input, p, ct);
         var task = new TaskItem { ProjectId = p.Id }; Apply(task, input); db.Tasks.Add(task);
+        events.Add(task, [task.AssigneeId], actor.Id, $"assigned:{task.Id}:{task.Version}", $"Task assigned: {task.Title}");
         Touch(p, task, "Task created."); await db.SaveChangesAsync(ct); return task.Id;
     }
     public async Task UpdateAsync(Guid id, TaskRequest input, CancellationToken ct)
@@ -56,7 +57,8 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
         WorkflowRules.Version(input.Version, task.Version);
         if (task.Status is TaskState.Completed or TaskState.Cancelled) throw new DomainException("Reopen the task before editing it.", FailureKind.Conflict);
         if (input.ProjectId != task.ProjectId) throw new DomainException("Tasks cannot be moved between projects.");
-        await ValidateAsync(input, p, ct); Apply(task, input);
+        await ValidateAsync(input, p, ct); var previousAssignee = task.AssigneeId; Apply(task, input);
+        if (previousAssignee != task.AssigneeId) events.Add(task, [task.AssigneeId], actor.Id, $"assigned:{task.Id}:{task.Version}", $"Task assigned: {task.Title}");
         Touch(p, task, "Task updated."); await db.SaveChangesAsync(ct);
     }
     public async Task StatusAsync(Guid id, StatusRequest input, CancellationToken ct)
@@ -67,6 +69,7 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
         WorkflowRules.Version(input.Version, task.Version); WorkflowRules.Transition(task.Status, input.Status, manages);
         if (task.Status == input.Status) return;
         task.Status = input.Status; task.CompletedAt = task.Status == TaskState.Completed ? clock.GetUtcNow() : null;
+        events.Add(task, [task.AssigneeId, p.ManagerId], actor.Id, $"status:{task.Id}:{task.Version}", $"{task.Title}: {input.Status}");
         Touch(p, task, $"Task status changed to {input.Status}."); await db.SaveChangesAsync(ct);
     }
     private async Task<TaskItem> FindAsync(Guid id, CancellationToken ct) => await Scoped.SingleOrDefaultAsync(x => x.Id == id, ct) ?? throw new DomainException("Task not found.", FailureKind.NotFound);

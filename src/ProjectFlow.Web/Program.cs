@@ -67,6 +67,11 @@ builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<InsightService>();
 builder.Services.AddScoped<CommentService>();
+builder.Services.AddScoped<NotificationEvents>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<DeadlineService>();
+builder.Services.AddScoped<AdminService>();
+if (builder.Configuration.GetValue("Deadlines:Enabled", true)) builder.Services.AddHostedService<ProjectFlow.Web.Services.DeadlineWorker>();
 
 var app = builder.Build();
 if (args.Contains("--bootstrap-admin"))

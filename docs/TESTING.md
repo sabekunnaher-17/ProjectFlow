@@ -44,3 +44,9 @@ builds loaded successfully locally without any Windows policy/configuration chan
 SQLite uses UTC tick conversion for timestamp ordering; production retains native
 SQL Server datetimeoffset. M5 tests cover real dashboard totals, overdue/upcoming,
 comment scope/XSS encoding, activity ordering, report scope and CSV formula escaping.
+
+M6 tests cover private event notifications, two repeated deadline sweeps, read state,
+admin denial/role overposting, deactivation/session invalidation, stale stamps and
+last-active-admin protection. SQL CI also submits two simultaneous self-demotions
+and requires exactly one success, leaving an active administrator. Deadline-worker
+scheduling itself is not simulated; tests call the same sweep service directly.

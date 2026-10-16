@@ -11,6 +11,21 @@ organizations they joined. Explicit project-manager assignment grants management
 inside that project; it never grants access to unrelated organizations/projects.
 Owners/Admin may manage organization membership and their contained projects.
 Task checks accompany their later milestone.
+Task reads require project scope; create/edit require project management, and status
+changes require the assignee or management. Assignment requires active membership
+and a composite database FK. All task/project writes use concurrency tokens; task
+writes also advance the project token to serialize planning/archive changes.
+
+Admin mutations take a transaction-owned SQL Server application lock, recheck the
+actor's active Admin membership in SQL, reload the target and reject stale stamps.
+Last-active-admin counting happens inside the same operation. Roles are never
+accepted by registration/profile requests. Database owners/operators are trusted;
+direct SQL modifications are outside application authorization guarantees.
+
+Event notifications save atomically with task/comment changes. Deadline sweeps use
+a separate database application lock and unique recipient/event keys. Notification
+reads and read-markers require recipient identity plus current task scope. The
+five-minute worker never exposes an unauthenticated mutation endpoint.
 
 Account endpoints allow 20 submissions per client IP per minute per app instance,
 with no queue. Identity locks an account for 15 minutes after five failed passwords.
