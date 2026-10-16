@@ -20,7 +20,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
 {
     var connection = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (!string.IsNullOrWhiteSpace(connection)) o.UseSqlServer(connection);
+    if (!string.IsNullOrWhiteSpace(connection))
+        o.UseSqlServer(connection);
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
 {
@@ -85,7 +86,8 @@ if (args.Contains("--bootstrap-admin"))
     var user = await users.FindByEmailAsync(email);
     if (user is null || !user.IsActive || (await users.GetUsersInRoleAsync(Roles.Admin)).Count != 0)
         throw new InvalidOperationException("Bootstrap requires an active existing account and no existing administrator.");
-    if (!(await users.AddToRoleAsync(user, Roles.Admin)).Succeeded) throw new InvalidOperationException("Admin bootstrap failed.");
+    if (!(await users.AddToRoleAsync(user, Roles.Admin)).Succeeded)
+        throw new InvalidOperationException("Admin bootstrap failed.");
     await users.UpdateSecurityStampAsync(user);
     Console.WriteLine("Administrator bootstrap completed. Sign in again.");
     return;
@@ -123,4 +125,6 @@ app.MapControllerRoute(
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+}

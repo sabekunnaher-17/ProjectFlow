@@ -30,9 +30,11 @@ public sealed class FoundationTests : IClassFixture<WebApplicationFactory<Progra
     [Fact]
     public async Task DevelopmentOpenApiDocumentsOnlyTheVersionedJsonApi()
     {
-        var response = await client.GetAsync("/openapi/v1.json"); response.EnsureSuccessStatusCode();
+        var response = await client.GetAsync("/openapi/v1.json");
+        response.EnsureSuccessStatusCode();
         var text = await response.Content.ReadAsStringAsync();
-        Assert.Contains("/api/v1/projects", text); Assert.Contains("/api/v1/notifications", text);
+        Assert.Contains("/api/v1/projects", text);
+        Assert.Contains("/api/v1/notifications", text);
         Assert.DoesNotContain("/Account/Login", text);
         Assert.Equal(System.Net.HttpStatusCode.OK, (await client.GetAsync("/css/site.css")).StatusCode);
     }

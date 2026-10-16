@@ -106,7 +106,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             foreach (var property in entity.GetProperties())
             {
-                if (property.ClrType == typeof(string) && property.Name.EndsWith("Id")) property.SetMaxLength(128);
+                if (property.ClrType == typeof(string) && property.Name.EndsWith("Id"))
+                    property.SetMaxLength(128);
             }
             if (typeof(Entity).IsAssignableFrom(entity.ClrType))
                 b.Entity(entity.ClrType).Property(nameof(Entity.Version)).IsConcurrencyToken();
@@ -124,7 +125,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entry.Entity.UpdatedAt = clock.GetUtcNow();
             entry.Entity.Version = Guid.NewGuid();
-            if (entry.State == EntityState.Added) entry.Entity.CreatedAt = entry.Entity.UpdatedAt;
+            if (entry.State == EntityState.Added)
+                entry.Entity.CreatedAt = entry.Entity.UpdatedAt;
         }
         return base.SaveChangesAsync(cancellationToken);
     }

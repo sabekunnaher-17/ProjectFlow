@@ -14,8 +14,13 @@ public sealed class AccountController(AccountService accounts) : Controller
     [AllowAnonymous, HttpPost, EnableRateLimiting("account")]
     public async Task<IActionResult> Register(RegisterRequest input, CancellationToken ct)
     {
-        if (!ModelState.IsValid) return View(input);
-        try { await accounts.RegisterAsync(input, ct); return RedirectToAction(nameof(Login)); }
+        if (!ModelState.IsValid)
+            return View(input);
+        try
+        {
+            await accounts.RegisterAsync(input, ct);
+            return RedirectToAction(nameof(Login));
+        }
         catch (DomainException e) { ModelState.AddModelError("", e.Message); return View(input); }
     }
 
@@ -23,21 +28,34 @@ public sealed class AccountController(AccountService accounts) : Controller
     [AllowAnonymous, HttpPost, EnableRateLimiting("account")]
     public async Task<IActionResult> Login(LoginRequest input)
     {
-        if (!ModelState.IsValid) return View(input);
-        if (await accounts.LoginAsync(input)) return RedirectToAction("Index", "Home");
+        if (!ModelState.IsValid)
+            return View(input);
+        if (await accounts.LoginAsync(input))
+            return RedirectToAction("Index", "Home");
         ModelState.AddModelError("", "Sign in failed. Check your credentials or try again later.");
         return View(input);
     }
 
-    [HttpPost] public async Task<IActionResult> Logout() { await accounts.LogoutAsync(); return RedirectToAction("Index", "Home"); }
+    [HttpPost]
+    public async Task<IActionResult> Logout()
+    {
+        await accounts.LogoutAsync();
+        return RedirectToAction("Index", "Home");
+    }
     [HttpGet] public async Task<IActionResult> Profile() => View(new ProfileRequest { DisplayName = (await accounts.GetAsync(User)).DisplayName });
     [HttpPost]
     public async Task<IActionResult> Profile(ProfileRequest input)
     {
-        if (!ModelState.IsValid) return View(input);
+        if (!ModelState.IsValid)
+            return View(input);
         await accounts.UpdateAsync(User, input);
         TempData["Success"] = "Profile saved.";
         return RedirectToAction(nameof(Profile));
     }
-    [AllowAnonymous, HttpGet] public IActionResult Denied() { Response.StatusCode = 403; return View(); }
+    [AllowAnonymous, HttpGet]
+    public IActionResult Denied()
+    {
+        Response.StatusCode = 403;
+        return View();
+    }
 }

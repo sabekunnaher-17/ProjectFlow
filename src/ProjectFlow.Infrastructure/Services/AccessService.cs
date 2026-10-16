@@ -16,13 +16,15 @@ public sealed class AccessService(ApplicationDbContext db, IActor actor)
     public async Task<Organization> OrganizationAsync(Guid id, bool manage, CancellationToken ct)
     {
         var org = await Organizations.SingleOrDefaultAsync(x => x.Id == id, ct) ?? throw new DomainException("Organization not found.", FailureKind.NotFound);
-        if (manage && !actor.IsAdmin && org.OwnerId != actor.Id) throw new DomainException("Organization ownership is required.", FailureKind.Forbidden);
+        if (manage && !actor.IsAdmin && org.OwnerId != actor.Id)
+            throw new DomainException("Organization ownership is required.", FailureKind.Forbidden);
         return org;
     }
     public async Task<Project> ProjectAsync(Guid id, bool manage, CancellationToken ct)
     {
         var project = await Projects.SingleOrDefaultAsync(x => x.Id == id, ct) ?? throw new DomainException("Project not found.", FailureKind.NotFound);
-        if (manage && !await CanManageAsync(project, ct)) throw new DomainException("Project management permission is required.", FailureKind.Forbidden);
+        if (manage && !await CanManageAsync(project, ct))
+            throw new DomainException("Project management permission is required.", FailureKind.Forbidden);
         return project;
     }
     public async Task<bool> CanManageAsync(Project project, CancellationToken ct) => actor.IsAdmin || project.ManagerId == actor.Id

@@ -12,13 +12,15 @@ public sealed class NotificationService(ApplicationDbContext db, TaskService tas
     public async Task<PageDto<NotificationDto>> ListAsync(int page, bool unread, CancellationToken ct)
     {
         var q = Visible;
-        if (unread) q = q.Where(x => x.ReadAt == null);
+        if (unread)
+            q = q.Where(x => x.ReadAt == null);
         return new(await q.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.Id).Skip((page - 1) * 20).Take(20)
             .Select(x => new NotificationDto(x.Id, x.TaskItemId, x.Message, x.CreatedAt, x.ReadAt)).ToListAsync(ct), await q.CountAsync(ct), page, 20);
     }
     public async Task ReadAsync(Guid id, CancellationToken ct)
     {
         var item = await Visible.SingleOrDefaultAsync(x => x.Id == id, ct) ?? throw new DomainException("Notification not found.", FailureKind.NotFound);
-        item.ReadAt ??= clock.GetUtcNow(); await db.SaveChangesAsync(ct);
+        item.ReadAt ??= clock.GetUtcNow();
+        await db.SaveChangesAsync(ct);
     }
 }

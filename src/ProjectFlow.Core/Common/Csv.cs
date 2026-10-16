@@ -6,7 +6,8 @@ public static class Csv
     {
         text ??= "";
         // Prevent spreadsheet formulas, including those prefixed by whitespace.
-        if (text.TrimStart().FirstOrDefault() is '=' or '+' or '-' or '@' || text.StartsWith('\t') || text.StartsWith('\r')) text = "'" + text;
+        if (text.TrimStart().FirstOrDefault() is '=' or '+' or '-' or '@' || text.StartsWith('\t') || text.StartsWith('\r'))
+            text = "'" + text;
         return "\"" + text.Replace("\"", "\"\"") + "\"";
     }
 }

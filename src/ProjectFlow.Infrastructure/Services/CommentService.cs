@@ -18,11 +18,21 @@ public sealed class CommentService(ApplicationDbContext db, TaskService tasks, A
     }
     public async Task AddAsync(Guid taskId, CommentRequest input, CancellationToken ct)
     {
-        var task = await tasks.GetAsync(taskId, ct); var p = await access.ProjectAsync(task.ProjectId, false, ct); WorkflowRules.Editable(p.Status);
-        var comment = new TaskComment { TaskItemId = taskId, AuthorId = actor.Id, Body = input.Body.Trim() }; db.Comments.Add(comment);
+        var task = await tasks.GetAsync(taskId, ct);
+        var p = await access.ProjectAsync(task.ProjectId, false, ct);
+        WorkflowRules.Editable(p.Status);
+        var comment = new TaskComment { TaskItemId = taskId, AuthorId = actor.Id, Body = input.Body.Trim() };
+        db.Comments.Add(comment);
         await events.CommentAsync(await db.Tasks.SingleAsync(x => x.Id == taskId, ct), comment.Id, actor.Id, ct);
         db.Entry(p).Property(x => x.UpdatedAt).IsModified = true;
-        db.Activities.Add(new() { ProjectId = p.Id, TaskItemId = taskId, ActorId = actor.Id, Description = "Task comment added.", CreatedAt = clock.GetUtcNow() });
+        db.Activities.Add(new()
+        {
+            ProjectId = p.Id,
+            TaskItemId = taskId,
+            ActorId = actor.Id,
+            Description = "Task comment added.",
+            CreatedAt = clock.GetUtcNow()
+        });
         await db.SaveChangesAsync(ct);
     }
 }

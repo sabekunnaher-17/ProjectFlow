@@ -17,16 +17,24 @@ public sealed class OrganizationService(ApplicationDbContext db, AccessService a
     public async Task<OrganizationDto> GetAsync(Guid id, CancellationToken ct)
     {
         var org = await access.OrganizationAsync(id, false, ct);
-        var members = await (from m in db.OrganizationMembers join u in db.Users on m.UserId equals u.Id
-            where m.OrganizationId == id orderby u.DisplayName select new MemberDto(u.Id, u.DisplayName, u.Email!)).ToListAsync(ct);
+        var members = await (from m in db.OrganizationMembers
+                             join u in db.Users on m.UserId equals u.Id
+                             where m.OrganizationId == id
+                             orderby u.DisplayName
+                             select new MemberDto(u.Id, u.DisplayName, u.Email!)).ToListAsync(ct);
         return new(org.Id, org.Name, org.OwnerId, actor.IsAdmin || org.OwnerId == actor.Id, members);
     }
     public async Task<Guid> CreateAsync(OrganizationRequest input, CancellationToken ct)
     {
         var org = new Organization { Name = input.Name.Trim(), OwnerId = actor.Id };
         db.Organizations.Add(org);
-        db.OrganizationMembers.Add(new() { OrganizationId = org.Id, UserId = actor.Id });
-        await db.SaveChangesAsync(ct); return org.Id;
+        db.OrganizationMembers.Add(new()
+        {
+            OrganizationId = org.Id,
+            UserId = actor.Id
+        });
+        await db.SaveChangesAsync(ct);
+        return org.Id;
     }
     public async Task AddMemberAsync(Guid id, OrganizationMemberRequest input, CancellationToken ct)
     {
@@ -34,8 +42,13 @@ public sealed class OrganizationService(ApplicationDbContext db, AccessService a
         var normalized = input.Email.Trim().ToUpperInvariant();
         var user = await db.Users.SingleOrDefaultAsync(x => x.NormalizedEmail == normalized && x.IsActive, ct)
             ?? throw new DomainException("An active registered account is required.");
-        if (await db.OrganizationMembers.AnyAsync(x => x.OrganizationId == id && x.UserId == user.Id, ct)) return;
-        db.OrganizationMembers.Add(new() { OrganizationId = id, UserId = user.Id });
+        if (await db.OrganizationMembers.AnyAsync(x => x.OrganizationId == id && x.UserId == user.Id, ct))
+            return;
+        db.OrganizationMembers.Add(new()
+        {
+            OrganizationId = id,
+            UserId = user.Id
+        });
         await db.SaveChangesAsync(ct);
     }
 }

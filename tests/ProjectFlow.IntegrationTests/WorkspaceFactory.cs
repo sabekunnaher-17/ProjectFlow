@@ -30,7 +30,8 @@ public sealed class WorkspaceFactory : WebApplicationFactory<Program>
                 connection.Open();
                 services.AddDbContext<ApplicationDbContext>(o => o.UseSqlite(connection));
             }
-            else services.AddDbContext<ApplicationDbContext>(o => o.UseSqlServer(SqlTarget));
+            else
+                services.AddDbContext<ApplicationDbContext>(o => o.UseSqlServer(SqlTarget));
         });
     }
 
@@ -39,18 +40,23 @@ public sealed class WorkspaceFactory : WebApplicationFactory<Program>
         if (!string.IsNullOrEmpty(server))
         {
             // Never reuse, delete, migrate or seed an existing database.
-            if (!databaseName.EndsWith("_test") || databaseName.Length != 49) throw new InvalidOperationException("Invalid isolated database name.");
+            if (!databaseName.EndsWith("_test") || databaseName.Length != 49)
+                throw new InvalidOperationException("Invalid isolated database name.");
             await using var master = new SqlConnection(new SqlConnectionStringBuilder(server) { InitialCatalog = "master" }.ConnectionString);
             await master.OpenAsync();
             await using var check = master.CreateCommand();
-            check.CommandText = "SELECT DB_ID(@name)"; check.Parameters.AddWithValue("@name", databaseName);
-            if (await check.ExecuteScalarAsync() is not DBNull) throw new InvalidOperationException("Test database name already exists; refusing reuse.");
+            check.CommandText = "SELECT DB_ID(@name)";
+            check.Parameters.AddWithValue("@name", databaseName);
+            if (await check.ExecuteScalarAsync() is not DBNull)
+                throw new InvalidOperationException("Test database name already exists; refusing reuse.");
             await using var create = master.CreateCommand();
-            create.CommandText = $"CREATE DATABASE [{databaseName}]"; await create.ExecuteNonQueryAsync();
+            create.CommandText = $"CREATE DATABASE [{databaseName}]";
+            await create.ExecuteNonQueryAsync();
         }
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        if (string.IsNullOrEmpty(server)) await db.Database.EnsureCreatedAsync();
+        if (string.IsNullOrEmpty(server))
+            await db.Database.EnsureCreatedAsync();
         else
         {
             Assert.Equal(databaseName, db.Database.GetDbConnection().Database);
@@ -67,15 +73,29 @@ public sealed class WorkspaceFactory : WebApplicationFactory<Program>
     public static async Task RegisterAsync(HttpClient client, string email, string name = "Test Member")
     {
         await TokenAsync(client);
-        var response = await client.PostAsJsonAsync("/api/v1/account/register", new { displayName = name, email, password = "Test-only!Secret42" });
+        var response = await client.PostAsJsonAsync("/api/v1/account/register", new
+        {
+            displayName = name,
+            email,
+            password = "Test-only!Secret42"
+        });
         Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
     }
     public static async Task LoginAsync(HttpClient client, string email)
     {
         await TokenAsync(client);
-        var response = await client.PostAsJsonAsync("/api/v1/account/login", new { email, password = "Test-only!Secret42" });
+        var response = await client.PostAsJsonAsync("/api/v1/account/login", new
+        {
+            email,
+            password = "Test-only!Secret42"
+        });
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
         await TokenAsync(client); // Token is bound to the authenticated identity.
     }
-    protected override void Dispose(bool disposing) { base.Dispose(disposing); if (disposing) connection.Dispose(); }
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+            connection.Dispose();
+    }
 }

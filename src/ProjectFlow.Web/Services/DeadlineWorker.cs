@@ -11,7 +11,11 @@ public sealed class DeadlineWorker(IServiceScopeFactory scopes, ILogger<Deadline
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                try { using var scope = scopes.CreateScope(); await scope.ServiceProvider.GetRequiredService<DeadlineService>().SweepAsync(stoppingToken); }
+                try
+                {
+                    using var scope = scopes.CreateScope();
+                    await scope.ServiceProvider.GetRequiredService<DeadlineService>().SweepAsync(stoppingToken);
+                }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
                 catch (Exception error) { logger.LogWarning("Deadline sweep failed ({Type}); will retry next interval.", error.GetType().Name); }
             }

@@ -11,7 +11,14 @@ public sealed class NotificationEvents(ApplicationDbContext db, TimeProvider clo
     public void Add(TaskItem task, IEnumerable<string?> recipients, string actorId, string key, string message)
     {
         foreach (var userId in recipients.Where(x => !string.IsNullOrEmpty(x) && x != actorId).Distinct())
-            db.Notifications.Add(new() { UserId = userId!, TaskItemId = task.Id, EventKey = key, Message = message, CreatedAt = clock.GetUtcNow() });
+            db.Notifications.Add(new()
+            {
+                UserId = userId!,
+                TaskItemId = task.Id,
+                EventKey = key,
+                Message = message,
+                CreatedAt = clock.GetUtcNow()
+            });
     }
     public async Task CommentAsync(TaskItem task, Guid commentId, string actorId, CancellationToken ct)
     {

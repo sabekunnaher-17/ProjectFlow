@@ -14,7 +14,8 @@ public sealed class AccountService(UserManager<ApplicationUser> users, RoleManag
     {
         foreach (var name in Roles.All)
         {
-            if (await roles.RoleExistsAsync(name)) continue;
+            if (await roles.RoleExistsAsync(name))
+                continue;
             var result = await roles.CreateAsync(new IdentityRole(name));
             if (!result.Succeeded && !await roles.RoleExistsAsync(name))
                 throw new InvalidOperationException("Unable to initialize application roles.");
@@ -27,9 +28,11 @@ public sealed class AccountService(UserManager<ApplicationUser> users, RoleManag
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         var user = new ApplicationUser { UserName = request.Email.Trim(), Email = request.Email.Trim(), DisplayName = request.DisplayName.Trim() };
         var result = await users.CreateAsync(user, request.Password);
-        if (!result.Succeeded) throw new DomainException("Registration could not be completed. Check your details or try signing in.");
+        if (!result.Succeeded)
+            throw new DomainException("Registration could not be completed. Check your details or try signing in.");
         var assigned = await users.AddToRoleAsync(user, Roles.Member);
-        if (!assigned.Succeeded) throw new InvalidOperationException("Unable to assign the default role.");
+        if (!assigned.Succeeded)
+            throw new InvalidOperationException("Unable to assign the default role.");
         await transaction.CommitAsync(ct);
         // Explicit login follows registration; a posted role/admin field is never bound.
     }
@@ -37,7 +40,11 @@ public sealed class AccountService(UserManager<ApplicationUser> users, RoleManag
     public async Task<bool> LoginAsync(LoginRequest request)
     {
         var user = await users.FindByEmailAsync(request.Email.Trim());
-        if (user is null || !user.IsActive) { unknown.Verify(request.Password); return false; }
+        if (user is null || !user.IsActive)
+        {
+            unknown.Verify(request.Password);
+            return false;
+        }
         return (await signIn.PasswordSignInAsync(user, request.Password, false, lockoutOnFailure: true)).Succeeded;
     }
 
@@ -46,15 +53,18 @@ public sealed class AccountService(UserManager<ApplicationUser> users, RoleManag
     public async Task<AccountDto> GetAsync(ClaimsPrincipal principal)
     {
         var user = await users.GetUserAsync(principal);
-        if (user is null || !user.IsActive) throw new DomainException("Sign in to continue.", FailureKind.Forbidden);
+        if (user is null || !user.IsActive)
+            throw new DomainException("Sign in to continue.", FailureKind.Forbidden);
         return new(user.Id, user.DisplayName, user.Email ?? "", (await users.GetRolesAsync(user)).ToArray());
     }
 
     public async Task UpdateAsync(ClaimsPrincipal principal, ProfileRequest request)
     {
         var user = await users.GetUserAsync(principal);
-        if (user is null || !user.IsActive) throw new DomainException("Sign in to continue.", FailureKind.Forbidden);
+        if (user is null || !user.IsActive)
+            throw new DomainException("Sign in to continue.", FailureKind.Forbidden);
         user.DisplayName = request.DisplayName.Trim();
-        if (!(await users.UpdateAsync(user)).Succeeded) throw new DomainException("Profile update could not be saved.", FailureKind.Conflict);
+        if (!(await users.UpdateAsync(user)).Succeeded)
+            throw new DomainException("Profile update could not be saved.", FailureKind.Conflict);
     }
 }

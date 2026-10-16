@@ -20,13 +20,16 @@ public static class WorkflowRules
 
     public static void Transition(WorkStatus from, WorkStatus to, bool canManage)
     {
-        if (!CanTransition(from, to, canManage)) throw new DomainException("This task status transition is not allowed.");
+        if (!CanTransition(from, to, canManage))
+            throw new DomainException("This task status transition is not allowed.");
     }
 
     public static bool CanTransition(WorkStatus from, WorkStatus to, bool canManage)
     {
-        if (!Enum.IsDefined(from) || !Enum.IsDefined(to)) return false;
-        if (from == to) return true;
+        if (!Enum.IsDefined(from) || !Enum.IsDefined(to))
+            return false;
+        if (from == to)
+            return true;
         return from switch
         {
             WorkStatus.Todo => to is WorkStatus.InProgress || (canManage && to == WorkStatus.Cancelled),
@@ -46,7 +49,8 @@ public static class WorkflowRules
 
     public static void Editable(ProjectStatus status)
     {
-        if (status == ProjectStatus.Archived) throw new DomainException("Archived projects are read-only.", FailureKind.Conflict);
+        if (status == ProjectStatus.Archived)
+            throw new DomainException("Archived projects are read-only.", FailureKind.Conflict);
     }
 
     public static void Version(Guid expected, Guid actual)
