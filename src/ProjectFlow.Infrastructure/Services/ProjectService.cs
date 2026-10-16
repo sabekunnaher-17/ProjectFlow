@@ -83,7 +83,7 @@ public sealed class ProjectService(ApplicationDbContext db, AccessService access
     }
     private static void Apply(Project p, ProjectRequest i)
     {
-        p.Name = i.Name.Trim(); p.Description = i.Description.Trim(); p.ManagerId = i.ManagerId;
+        p.Name = i.Name.Trim(); p.Description = i.Description?.Trim() ?? ""; p.ManagerId = i.ManagerId;
         p.StartDate = i.StartDate; p.EndDate = i.EndDate; p.Status = i.Status;
     }
     private void Activity(Guid id, string message) => db.Activities.Add(new() { ProjectId = id, ActorId = actor.Id, Description = message, CreatedAt = clock.GetUtcNow() });

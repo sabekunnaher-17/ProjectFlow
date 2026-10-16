@@ -82,7 +82,7 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
     }
     private static void Apply(TaskItem t, TaskRequest i)
     {
-        t.Title = i.Title.Trim(); t.Description = i.Description.Trim(); t.AssigneeId = string.IsNullOrWhiteSpace(i.AssigneeId) ? null : i.AssigneeId;
+        t.Title = i.Title.Trim(); t.Description = i.Description?.Trim() ?? ""; t.AssigneeId = string.IsNullOrWhiteSpace(i.AssigneeId) ? null : i.AssigneeId;
         t.Priority = i.Priority; t.StartDate = i.StartDate; t.DueDate = i.DueDate;
     }
     private static void Writable(Project p)

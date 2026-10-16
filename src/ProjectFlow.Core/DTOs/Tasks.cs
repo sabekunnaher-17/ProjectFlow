@@ -8,7 +8,7 @@ public sealed class TaskRequest
 {
     public Guid ProjectId { get; set; }
     [Required, StringLength(160, MinimumLength = 2)] public string Title { get; set; } = "";
-    [StringLength(5000)] public string Description { get; set; } = "";
+    [StringLength(5000)] public string? Description { get; set; }
     [StringLength(128)] public string? AssigneeId { get; set; }
     [EnumDataType(typeof(TaskPriority))] public TaskPriority Priority { get; set; } = TaskPriority.Medium;
     [DataType(DataType.Date)] public DateOnly StartDate { get; set; }

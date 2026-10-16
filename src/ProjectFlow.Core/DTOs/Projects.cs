@@ -17,7 +17,7 @@ public sealed class ProjectRequest
 {
     [Required] public Guid OrganizationId { get; set; }
     [Required, StringLength(120, MinimumLength = 2)] public string Name { get; set; } = "";
-    [StringLength(3000)] public string Description { get; set; } = "";
+    [StringLength(3000)] public string? Description { get; set; }
     [Required, StringLength(128)] public string ManagerId { get; set; } = "";
     [DataType(DataType.Date)] public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
     [DataType(DataType.Date)] public DateOnly EndDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30));

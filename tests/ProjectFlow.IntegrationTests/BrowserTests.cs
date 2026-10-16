@@ -1,4 +1,7 @@
 using Microsoft.Playwright;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.DependencyInjection;
 using static Microsoft.Playwright.Assertions;
 
 namespace ProjectFlow.IntegrationTests;
@@ -9,10 +12,11 @@ public sealed class BrowserTests
     public async Task RealMvcFormsFetchAndResponsiveNavigationCompleteAWorkspaceJourney()
     {
         using var app = new WorkspaceFactory(); app.UseKestrel(0); await app.InitializeAsync();
-        using var client = app.Browser();
+        var address = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
+        Assert.NotEqual(80, new Uri(address).Port);
         using var playwright = await Playwright.CreateAsync();
         await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        var context = await browser.NewContextAsync(new() { ViewportSize = new() { Width = 1440, Height = 1000 }, BaseURL = client.BaseAddress!.ToString() });
+        var context = await browser.NewContextAsync(new() { ViewportSize = new() { Width = 1440, Height = 1000 }, BaseURL = address });
         var page = await context.NewPageAsync(); var errors = new List<string>();
         page.PageError += (_, error) => errors.Add(error);
         await page.GotoAsync("/Account/Register");
