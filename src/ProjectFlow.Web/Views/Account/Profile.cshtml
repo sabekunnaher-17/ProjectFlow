@@ -1,0 +1,7 @@
+@model ProjectFlow.Core.DTOs.ProfileRequest
+@{ ViewData["Title"] = "My profile"; }
+<section class="auth-card card shadow-sm mx-auto"><div class="card-body p-4">
+<h1 class="h3">My profile</h1><form asp-action="Profile" method="post">
+<div asp-validation-summary="All" class="text-danger" role="alert"></div>
+<label asp-for="DisplayName" class="form-label">Full name</label><input asp-for="DisplayName" class="form-control mb-3" required minlength="2" maxlength="100" />
+<button class="btn btn-primary">Save profile</button></form></div></section>

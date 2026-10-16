@@ -1,10 +1,81 @@
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProjectFlow.Core.Enums;
+using ProjectFlow.Infrastructure.Data;
+using ProjectFlow.Infrastructure.Services;
+using ProjectFlow.Web.Security;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddDbContext<ApplicationDbContext>(o =>
+{
+    var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (!string.IsNullOrWhiteSpace(connection)) o.UseSqlServer(connection);
+});
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
+{
+    o.Password.RequiredLength = 12;
+    o.User.RequireUniqueEmail = true;
+    o.Lockout.MaxFailedAccessAttempts = 5;
+    o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddSignInManager<ActiveSignInManager>().AddDefaultTokenProviders();
+builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.Zero);
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "ProjectFlow.Session";
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SameSite = SameSiteMode.Lax;
+    o.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+    o.LoginPath = "/Account/Login";
+    o.AccessDeniedPath = "/Account/Denied";
+    o.ExpireTimeSpan = TimeSpan.FromHours(8);
+    o.SlidingExpiration = false;
+    o.Events.OnRedirectToLogin = c => { if (c.Request.Path.StartsWithSegments("/api")) c.Response.StatusCode = 401; else c.Response.Redirect(c.RedirectUri); return Task.CompletedTask; };
+    o.Events.OnRedirectToAccessDenied = c => { if (c.Request.Path.StartsWithSegments("/api")) c.Response.StatusCode = 403; else c.Response.Redirect(c.RedirectUri); return Task.CompletedTask; };
+});
+builder.Services.AddAntiforgery(o =>
+{
+    o.HeaderName = "X-CSRF-TOKEN";
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SameSite = SameSiteMode.Strict;
+    o.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+});
+builder.Services.AddAuthorization(o => o.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = 429;
+    o.AddPolicy("account", context => RateLimitPartition.GetFixedWindowLimiter(
+        // Forwarded headers are deliberately not trusted by this single-host app.
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 20, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddSingleton<UnknownPasswordVerifier>();
 
 var app = builder.Build();
+if (args.Contains("--bootstrap-admin"))
+{
+    using var scope = app.Services.CreateScope();
+    var accounts = scope.ServiceProvider.GetRequiredService<AccountService>();
+    var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var email = app.Configuration["Bootstrap:Email"] ?? throw new InvalidOperationException("Set Bootstrap__Email for an existing account.");
+    await accounts.EnsureRolesAsync();
+    var user = await users.FindByEmailAsync(email);
+    if (user is null || !user.IsActive || (await users.GetUsersInRoleAsync(Roles.Admin)).Count != 0)
+        throw new InvalidOperationException("Bootstrap requires an active existing account and no existing administrator.");
+    if (!(await users.AddToRoleAsync(user, Roles.Admin)).Succeeded) throw new InvalidOperationException("Admin bootstrap failed.");
+    await users.UpdateSecurityStampAsync(user);
+    Console.WriteLine("Administrator bootstrap completed. Sign in again.");
+    return;
+}
 app.UseExceptionHandler();
 app.Use(async (context, next) =>
 {
@@ -21,8 +92,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseRouting();
-
+app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseStatusCodePages(async status =>
+{
+    if (!status.HttpContext.Request.Path.StartsWithSegments("/api"))
+        await status.HttpContext.Response.WriteAsync("Request unavailable. Return to the home page or sign in.");
+});
 
 app.MapStaticAssets();
 app.MapGet("/health/live", () => Results.Ok(new { status = "healthy" })).AllowAnonymous();

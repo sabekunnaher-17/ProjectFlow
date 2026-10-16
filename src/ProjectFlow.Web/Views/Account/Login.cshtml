@@ -1,0 +1,10 @@
+@model ProjectFlow.Core.DTOs.LoginRequest
+@{ ViewData["Title"] = "Sign in"; }
+<section class="auth-card card shadow-sm mx-auto"><div class="card-body p-4">
+<p class="text-uppercase small text-primary fw-bold">Welcome back</p><h1 class="h3">Sign in to ProjectFlow</h1>
+<form asp-action="Login" method="post"><div asp-validation-summary="All" class="text-danger" role="alert"></div>
+<div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" type="email" class="form-control" autocomplete="username" required maxlength="254" /></div>
+<div class="mb-3"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" autocomplete="current-password" required maxlength="128" /></div>
+<button class="btn btn-primary w-100">Sign in</button></form>
+<p class="mt-3 mb-0">New here? <a asp-action="Register">Create an account</a></p>
+</div></section>

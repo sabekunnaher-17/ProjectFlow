@@ -4,10 +4,11 @@ A project and task management application delivered incrementally by Sabekunnahe
 
 ## Current state
 
-Milestones 0–1: layered .NET 10 MVC foundation, liveness endpoint, security headers,
+Milestones 0–2: layered .NET 10 MVC foundation, liveness endpoint, security headers,
 domain rules, SQL Server model and initial migration, automated domain/host/schema
-checks, reproducible dependency locks and CI. Authentication and
-database-backed features are under implementation; the landing page is not a
+checks, reproducible dependency locks and CI. Identity registration/login/logout,
+profile editing, cookie/API CSRF, lockout and roles are implemented. Project/task
+features are under implementation; the landing page is not a
 claim that those features are complete. See [the roadmap](docs/DEVELOPMENT_ROADMAP.md).
 
 ## Stack and architecture
@@ -44,6 +45,14 @@ dotnet tool run dotnet-ef database update --project src/ProjectFlow.Infrastructu
 Review the target before applying; never target an existing or production database.
 The factory's LocalDB fallback is for generating migrations only. No database has been created or
 migrated locally. HTTP above is local development only; production requires TLS.
+
+After configuring/applying the new database, register at `/Account/Register` and
+sign in. All accounts begin as Team Member. To bootstrap the first administrator,
+set process-scoped `Bootstrap__Email` to an existing active account and run
+`dotnet run --project src/ProjectFlow.Web -- --bootstrap-admin`. This explicit CLI
+operation refuses if an administrator already exists. Remove the bootstrap value
+afterward and sign in again. No default user/password is seeded. Email confirmation
+and password recovery are not supplied without an explicitly configured mail service.
 
 Documentation: [architecture](docs/ARCHITECTURE.md), [schema](docs/DATABASE_SCHEMA.md),
 [API](docs/API_DOCUMENTATION.md), [testing](docs/TESTING.md), [security](docs/SECURITY.md).

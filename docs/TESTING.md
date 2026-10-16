@@ -16,3 +16,13 @@ SQL Server is unavailable locally. Never use a production or existing database f
 tests. Provider-specific CI tests must create uniquely named empty `_test` databases
 and clean up only resources created by that test run. A SQLite test fixture, if
 used for local HTTP checks, cannot establish SQL Server migration compatibility.
+
+The current HTTP account tests use a fresh in-memory SQLite connection per test;
+they cover real Identity hashing/cookies, registration role, encoded profile values,
+CSRF rejection, logout, lockout, inactive-session rejection and IP rate limits.
+Setting `PROJECTFLOW_TEST_SQL_SERVER` makes the same fixture create a unique
+`ProjectFlow_<guid>_test` database, refuse any name collision, and apply migrations
+before writes. It never reuses or drops a database. CI uses this mode in a dedicated
+job with a disposable SQL Server 2022 container and generated, masked credentials.
+The container is removed after the job; it is unrelated to developer data/services.
+Local SQL tests remain unrun until a SQL Server instance is explicitly approved.

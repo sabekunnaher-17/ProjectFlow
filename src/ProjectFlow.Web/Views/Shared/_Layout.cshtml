@@ -26,12 +26,25 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center gap-2">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Profile">My profile</a>
+                        <form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-outline-secondary">Sign out</button></form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Sign in</a>
+                        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create account</a>
+                    }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @if (TempData["Success"] is string success) { <div class="alert alert-success" role="status">@success</div> }
             @RenderBody()
         </main>
     </div>
