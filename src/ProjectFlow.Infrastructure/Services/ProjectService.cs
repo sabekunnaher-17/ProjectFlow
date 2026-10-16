@@ -41,7 +41,7 @@ public sealed class ProjectService(ApplicationDbContext db, AccessService access
             ProjectId = p.Id,
             UserId = p.ManagerId
         });
-        if (actor.Id != p.ManagerId)
+        if (actor.Id != p.ManagerId && await db.OrganizationMembers.AnyAsync(x => x.OrganizationId == org.Id && x.UserId == actor.Id, ct))
             db.ProjectMembers.Add(new()
             {
                 ProjectId = p.Id,

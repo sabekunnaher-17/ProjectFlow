@@ -7,4 +7,4 @@
 @foreach (var m in Model.Members) { <tr><td>@m.DisplayName</td><td>@m.Email</td></tr> }
 </tbody></table></div>
 @if (Model.CanManage) { <section class="card mt-4"><div class="card-body"><h2 class="h5">Add a registered member</h2><p class="text-muted">Members must already have a ProjectFlow account.</p>
-<form asp-action="AddMember" asp-route-id="@Model.Id" method="post"><div asp-validation-summary="All" class="text-danger" role="alert"></div><label for="Email" class="form-label">Registered email</label><div class="input-group"><input id="Email" type="email" name="Email" class="form-control" required maxlength="254" /><button class="btn btn-primary">Add member</button></div></form></div></section> }
+<form asp-action="AddMember" asp-route-id="@Model.Id" method="post"><div asp-validation-summary="All" class="text-danger" role="alert"></div><label for="Email" class="form-label">Registered email</label><div class="input-group"><input id="Email" type="email" name="Email" value="@ViewData.ModelState["Email"]?.AttemptedValue" class="form-control" required maxlength="254" /><button class="btn btn-primary">Add member</button></div></form></div></section> }

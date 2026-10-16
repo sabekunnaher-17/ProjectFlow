@@ -7,10 +7,13 @@ public sealed class DesignTimeFactory : IDesignTimeDbContextFactory<ApplicationD
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
-        // Migration generation does not open a connection. Applying migrations
-        // requires an explicitly supplied target; this design-only name is not runtime config.
-        var connection = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-            ?? "Server=(localdb)\\MSSQLLocalDB;Database=ProjectFlow_DesignOnly;Integrated Security=True;TrustServerCertificate=True";
+        // Offline model/script generation must be explicit and cannot accidentally
+        // connect to a locally installed SQL instance. Database updates require config.
+        var connection = args.Contains("--design-only")
+            ? "Server=design-only.invalid;Database=ProjectFlow_DesignOnly;Integrated Security=True;Encrypt=True;Connect Timeout=1"
+            : Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connection))
+            throw new InvalidOperationException("Set ConnectionStrings__DefaultConnection for an explicitly approved database. Use -- --design-only only for offline migration/script generation.");
         return new(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(connection).Options);
     }
 }

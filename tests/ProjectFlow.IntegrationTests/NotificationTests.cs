@@ -55,10 +55,17 @@ public sealed class NotificationTests
         {
             body = "Please review."
         })).StatusCode);
-        for (var i = 0; i < 2; i++)
+        async Task SweepAsync()
         {
             using var scope = app.Services.CreateScope();
             await scope.ServiceProvider.GetRequiredService<DeadlineService>().SweepAsync(default);
+        }
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROJECTFLOW_TEST_SQL_SERVER")))
+            await Task.WhenAll(SweepAsync(), SweepAsync());
+        else
+        {
+            await SweepAsync();
+            await SweepAsync();
         }
         var notices = (await member.GetFromJsonAsync<PageDto<NotificationDto>>("/api/v1/notifications"))!;
         Assert.Equal(5, notices.Total);

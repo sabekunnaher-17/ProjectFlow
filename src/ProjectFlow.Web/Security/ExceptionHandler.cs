@@ -13,6 +13,7 @@ public sealed class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExcept
         {
             DomainException d => d.Kind switch { FailureKind.NotFound => 404, FailureKind.Forbidden => 403, FailureKind.Conflict => 409, _ => 400 },
             DbUpdateConcurrencyException => 409,
+            DbUpdateException => 409,
             _ => 500
         };
         // Do not log arbitrary exception/SQL values or connection strings.

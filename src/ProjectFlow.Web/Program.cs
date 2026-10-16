@@ -41,8 +41,8 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.AccessDeniedPath = "/Account/Denied";
     o.ExpireTimeSpan = TimeSpan.FromHours(8);
     o.SlidingExpiration = false;
-    o.Events.OnRedirectToLogin = c => { if (c.Request.Path.StartsWithSegments("/api")) c.Response.StatusCode = 401; else c.Response.Redirect(c.RedirectUri); return Task.CompletedTask; };
-    o.Events.OnRedirectToAccessDenied = c => { if (c.Request.Path.StartsWithSegments("/api")) c.Response.StatusCode = 403; else c.Response.Redirect(c.RedirectUri); return Task.CompletedTask; };
+    o.Events.OnRedirectToLogin = c => ApiCookieResponses.RedirectAsync(c, 401);
+    o.Events.OnRedirectToAccessDenied = c => ApiCookieResponses.RedirectAsync(c, 403);
 });
 builder.Services.AddAntiforgery(o =>
 {
@@ -55,6 +55,14 @@ builder.Services.AddAuthorization(o => o.FallbackPolicy = new AuthorizationPolic
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = 429;
+    o.OnRejected = async (context, ct) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        if (context.HttpContext.Request.Path.StartsWithSegments("/api"))
+            await Results.Problem(statusCode: 429, title: "Too many attempts. Try again in a minute.").ExecuteAsync(context.HttpContext);
+        else
+            await context.HttpContext.Response.WriteAsync("Too many attempts. Try again in a minute.", ct);
+    };
     o.AddPolicy("account", context => RateLimitPartition.GetFixedWindowLimiter(
         // Forwarded headers are deliberately not trusted by this single-host app.
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -111,6 +119,8 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseWhen(c => c.Request.Path.StartsWithSegments("/api"), branch => branch.UseStatusCodePages(context =>
+    Results.Problem(statusCode: context.HttpContext.Response.StatusCode, title: "Request unavailable.").ExecuteAsync(context.HttpContext)));
 app.UseWhen(c => !c.Request.Path.StartsWithSegments("/api"), branch => branch.UseStatusCodePagesWithReExecute("/Home/Status/{0}"));
 if (app.Environment.IsDevelopment()) app.MapOpenApi().AllowAnonymous();
 

@@ -9,6 +9,8 @@ public sealed class CsvTests
     [InlineData(" +cmd")]
     [InlineData("\t@formula")]
     [InlineData("-2+3")]
+    [InlineData("\uFEFF=1+1")]
+    [InlineData("\0+formula")]
     public void FormulaCellsAreNeutralized(string input) => Assert.StartsWith("\"'", Csv.Cell(input));
     [Fact] public void QuotesAndNewlinesStayInsideTheQuotedCell() => Assert.Equal("\"a,\"\"b\"\"\nline\"", Csv.Cell("a,\"b\"\nline"));
 }

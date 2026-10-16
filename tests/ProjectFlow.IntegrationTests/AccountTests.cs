@@ -18,7 +18,9 @@ public sealed class AccountTests
         using var c = app.Browser();
         Assert.Contains("action=\"/Account/Login\"", await c.GetStringAsync("/Account/Login"));
         Assert.Contains("action=\"/Account/Register\"", await c.GetStringAsync("/Account/Register"));
-        Assert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync("/api/v1/account/me")).StatusCode);
+        var anonymous = await c.GetAsync("/api/v1/account/me");
+        Assert.Equal(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        Assert.Contains("application/problem+json", anonymous.Content.Headers.ContentType!.ToString());
         Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync("/api/v1/account/register", new
         {
         })).StatusCode);
@@ -29,6 +31,9 @@ public sealed class AccountTests
         })).StatusCode);
         await WorkspaceFactory.RegisterAsync(c, "member@example.test", "<script>Sample</script>");
         await WorkspaceFactory.LoginAsync(c, "member@example.test");
+        var missing = await c.GetAsync("/api/v1/unknown-resource");
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        Assert.Contains("application/problem+json", missing.Content.Headers.ContentType!.ToString());
         var me = await c.GetFromJsonAsync<AccountDto>("/api/v1/account/me");
         Assert.Equal([Roles.Member], me!.Roles);
         Assert.DoesNotContain(Roles.Admin, me.Roles);
