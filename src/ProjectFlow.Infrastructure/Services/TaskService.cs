@@ -16,6 +16,7 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
     {
         if (input.From > input.To) throw new DomainException("Due-date range is invalid.");
         var q = Scoped;
+        if (input.OpenOnly) q = q.Where(x => x.Status != TaskState.Completed && x.Status != TaskState.Cancelled);
         if (input.ProjectId.HasValue) q = q.Where(x => x.ProjectId == input.ProjectId);
         if (input.Mine) q = q.Where(x => x.AssigneeId == actor.Id);
         if (!string.IsNullOrWhiteSpace(input.Keyword)) q = q.Where(x => x.Title.Contains(input.Keyword) || x.Description.Contains(input.Keyword));
@@ -101,6 +102,6 @@ public sealed class TaskService(ApplicationDbContext db, AccessService access, I
         var assignee = t.AssigneeId is null ? "Unassigned" : await db.Users.Where(x => x.Id == t.AssigneeId).Select(x => x.DisplayName).SingleAsync(ct);
         return new(t.Id, p.Id, p.Name, t.Title, t.Description, t.AssigneeId, assignee, t.Priority, t.Status, t.StartDate, t.DueDate, t.CompletedAt, t.Version,
             t.DueDate < DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime) && t.Status is not TaskState.Completed and not TaskState.Cancelled,
-            manages && writable, canChange, canChange ? Enum.GetValues<TaskState>().Where(s => s != t.Status && WorkflowRules.CanTransition(t.Status, s, manages)).ToArray() : []);
+            manages && writable, canChange, canChange ? Enum.GetValues<TaskState>().Where(s => s != t.Status && WorkflowRules.CanTransition(t.Status, s, manages)).ToArray() : [], p.Status != ProjectStatus.Archived);
     }
 }

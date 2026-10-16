@@ -34,7 +34,7 @@ Lists return Items/Total/Page/PageSize/Pages. Projects include a Version GUID; s
 the latest Version on mutations or receive 409. Cross-scope IDs return 404, visible
 resources without mutation permission return 403. Project organization is immutable.
 
-Task endpoints implemented (CI verification pending at M4):
+Task endpoints implemented and verified in SQL Server CI:
 
 | Method | Route under `/api/v1` | Behavior |
 | --- | --- | --- |
@@ -49,8 +49,19 @@ project must be reopened before task changes; archived projects remain read-only
 Planning dates use the UTC calendar; event timestamps are UTC offsets. Project/task
 mutation concurrency protects date/membership/archiving checks against stale edits.
 
-Upcoming: `/api/v1/tasks/{id}/comments`, `/notifications`, `/dashboard`, `/reports`,
-`/admin/users`.
+Insight endpoints:
+
+| Method | Route under `/api/v1` | Behavior |
+| --- | --- | --- |
+| GET | `/dashboard` | Authorized project/task totals, statuses, open deadlines and activity |
+| GET | `/activity?projectId=&page=1` | Scoped activity, 20 per page |
+| GET/POST | `/tasks/{taskId}/comments` | Scoped history, 20 per page / Body up to 3,000 chars |
+| GET | `/reports/tasks.csv` | TaskQuery filters, maximum 5,000 rows, formula-safe cells |
+
+Comments are append-only and archived projects are read-only. CSV export rejects
+oversized reports rather than truncating. Date ranges apply to due dates; all
+reports honor the same scope as task lists. Upcoming deadlines exclude terminal
+tasks before pagination. Remaining modules: notifications and admin/users.
 
 Cookie-authenticated mutations require an antiforgery header, including APIs.
 Protected API requests return 401/403 rather than HTML login redirects. DTOs and

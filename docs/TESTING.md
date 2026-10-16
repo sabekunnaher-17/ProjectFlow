@@ -38,3 +38,9 @@ events confirmed the cause. Security settings were not changed. Runtime verifica
 therefore runs on a separate GitHub branch before integration into main. Local
 domain tests remain runnable. The SQL parallel-write test is explicitly skipped
 when no SQL test server is configured; CI runs it with the isolated SQL fixture.
+
+M4's SQL concurrency test passed in CI before fast-forwarding main. Subsequent M5
+builds loaded successfully locally without any Windows policy/configuration change.
+SQLite uses UTC tick conversion for timestamp ordering; production retains native
+SQL Server datetimeoffset. M5 tests cover real dashboard totals, overdue/upcoming,
+comment scope/XSS encoding, activity ordering, report scope and CSV formula escaping.

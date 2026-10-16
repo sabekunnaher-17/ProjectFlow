@@ -65,6 +65,8 @@ builder.Services.AddScoped<AccessService>();
 builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<InsightService>();
+builder.Services.AddScoped<CommentService>();
 
 var app = builder.Build();
 if (args.Contains("--bootstrap-admin"))

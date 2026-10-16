@@ -7,7 +7,7 @@ using ProjectFlow.Infrastructure.Services;
 namespace ProjectFlow.Web.Controllers;
 
 [Authorize]
-public sealed class TasksController(TaskService service, ProjectService projects) : Controller
+public sealed class TasksController(TaskService service, ProjectService projects, CommentService comments) : Controller
 {
     [HttpGet] public async Task<IActionResult> Index(TaskQuery input, bool board, CancellationToken ct)
     {
@@ -16,7 +16,16 @@ public sealed class TasksController(TaskService service, ProjectService projects
         if (input.ProjectId.HasValue) ViewData["Project"] = await projects.GetAsync(input.ProjectId.Value, ct);
         return View(await service.ListAsync(input, ct));
     }
-    [HttpGet] public async Task<IActionResult> Details(Guid id, CancellationToken ct) => View(await service.GetAsync(id, ct));
+    [HttpGet] public async Task<IActionResult> Details(Guid id, int commentPage = 1, CancellationToken ct = default)
+    {
+        if (commentPage is < 1 or > 1000000) return BadRequest();
+        ViewData["Comments"] = await comments.ListAsync(id, commentPage, ct); return View(await service.GetAsync(id, ct));
+    }
+    [HttpPost] public async Task<IActionResult> Comment(Guid id, CommentRequest input, CancellationToken ct)
+    {
+        if (ModelState.IsValid) { await comments.AddAsync(id, input, ct); return RedirectToAction(nameof(Details), new { id }); }
+        ViewData["SubmittedBody"] = input.Body; ViewData["Comments"] = await comments.ListAsync(id, 1, ct); return View("Details", await service.GetAsync(id, ct));
+    }
     [HttpGet] public async Task<IActionResult> Create(Guid projectId, CancellationToken ct)
     {
         var p = await projects.GetAsync(projectId, ct); if (!p.CanManage) return Forbid(); ViewData["Project"] = p;

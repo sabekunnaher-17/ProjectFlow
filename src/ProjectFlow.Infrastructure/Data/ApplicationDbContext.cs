@@ -111,6 +111,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             if (typeof(Entity).IsAssignableFrom(entity.ClrType))
                 b.Entity(entity.ClrType).Property(nameof(Entity.Version)).IsConcurrencyToken();
         }
+        // The isolated local test provider lacks native datetimeoffset ordering.
+        // SQL Server retains datetimeoffset; SQLite tests store UTC ticks instead.
+        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            foreach (var property in b.Model.GetEntityTypes().SelectMany(e => e.GetProperties()).Where(p => (Nullable.GetUnderlyingType(p.ClrType) ?? p.ClrType) == typeof(DateTimeOffset)))
+                property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTimeOffset, long>(d => d.UtcTicks, t => new DateTimeOffset(t, TimeSpan.Zero)));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

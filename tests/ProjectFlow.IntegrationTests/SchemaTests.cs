@@ -16,6 +16,7 @@ public sealed class SchemaTests
         Assert.Contains("CK_Project_Status", sql);
         Assert.Contains("IX_Notifications_UserId_EventKey", sql);
         Assert.Equal(System.Data.ConnectionState.Closed, db.Database.GetDbConnection().State);
+        Assert.False(db.Database.HasPendingModelChanges());
     }
 
     [Fact]

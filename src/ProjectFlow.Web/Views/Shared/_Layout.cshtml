@@ -23,6 +23,8 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Projects" asp-action="Index">Projects</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Tasks" asp-action="Index" asp-route-mine="true">My tasks</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Organizations" asp-action="Index">Organizations</a></li>

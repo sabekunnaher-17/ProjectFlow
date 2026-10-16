@@ -5,8 +5,8 @@
 - [x] M1: entities, SQL Server constraints/indexes, generated migration, domain/model tests. SQL execution pending.
 - [x] M2: Identity, registration/login/profile, roles, CSRF and authorization tests (local isolated HTTP provider; SQL CI separately reports execution).
 - [x] M3: organizations, project create/read/update/archive, membership, resource authorization.
-- [ ] M4: tasks, assignment, transitions, filters/pagination and Kanban implemented; CI verification pending because local Smart App Control blocked the new assembly.
-- [ ] M5: database dashboard, comments, activity, reports and safe CSV export.
+- [x] M4: tasks, assignment, transitions, filters/pagination and Kanban; CI verified, including parallel SQL writes (3f4ce11).
+- [x] M5: database dashboard, comments, activity, reports and safe CSV export.
 - [ ] M6: in-app notifications, deadlines and protected administration.
 - [ ] M7: responsive UI/accessibility and development OpenAPI.
 - [ ] M8: complete automated/security verification and setup documentation.
