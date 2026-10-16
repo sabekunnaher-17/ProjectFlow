@@ -16,8 +16,26 @@ including registration/login/logout. Fetch a new token after login/logout becaus
 tokens bind to the current identity. Send same-origin cookies. Never persist a
 password/token in browser localStorage. MVC forms include the equivalent hidden token.
 
-Upcoming: `/api/v1/organizations`, `/projects`, `/projects/{id}/members`, `/tasks`,
-`/tasks/{id}/comments`, `/notifications`, `/dashboard`, `/reports`, `/admin/users`.
+Workspace/project endpoints now implemented under `/api/v1`:
+
+| Method | Route | Behavior |
+| --- | --- | --- |
+| GET/POST | `/organizations` | Scoped list (up to 100) / create owned workspace |
+| GET | `/organizations/{id}` | Scoped members/details |
+| POST | `/organizations/{id}/members` | Owner/Admin adds registered email |
+| GET/POST | `/projects` | Paginated scope-filtered list / create |
+| GET/PUT | `/projects/{id}` | Scoped detail / manager/owner/Admin edits with Version |
+| POST | `/projects/{id}/archive` | Version required; makes read-only |
+| POST | `/projects/{id}/members` | UserId + Version; active organization member |
+| DELETE | `/projects/{id}/members/{userId}` | Version body; manager cannot be removed |
+
+Project filters: Keyword, Status, OrganizationId, Page (1–1,000,000), PageSize (1–100).
+Lists return Items/Total/Page/PageSize/Pages. Projects include a Version GUID; send
+the latest Version on mutations or receive 409. Cross-scope IDs return 404, visible
+resources without mutation permission return 403. Project organization is immutable.
+
+Upcoming: `/api/v1/tasks`, `/tasks/{id}/comments`, `/notifications`, `/dashboard`,
+`/reports`, `/admin/users`.
 
 Cookie-authenticated mutations require an antiforgery header, including APIs.
 Protected API requests return 401/403 rather than HTML login redirects. DTOs and

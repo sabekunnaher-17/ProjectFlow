@@ -4,11 +4,12 @@ A project and task management application delivered incrementally by Sabekunnahe
 
 ## Current state
 
-Milestones 0–2: layered .NET 10 MVC foundation, liveness endpoint, security headers,
+Milestones 0–3: layered .NET 10 MVC foundation, liveness endpoint, security headers,
 domain rules, SQL Server model and initial migration, automated domain/host/schema
 checks, reproducible dependency locks and CI. Identity registration/login/logout,
-profile editing, cookie/API CSRF, lockout and roles are implemented. Project/task
-features are under implementation; the landing page is not a
+profile editing, cookie/API CSRF, lockout and roles are implemented. Organizations,
+scoped projects, membership, search, edit concurrency and archiving are functional.
+Task features are under implementation; the landing page is not a
 claim that those features are complete. See [the roadmap](docs/DEVELOPMENT_ROADMAP.md).
 
 ## Stack and architecture

@@ -42,7 +42,7 @@ public static class WorkflowRules
 
     public static void Editable(ProjectStatus status)
     {
-        if (status == ProjectStatus.Archived) throw new DomainException("Archived projects are read-only.");
+        if (status == ProjectStatus.Archived) throw new DomainException("Archived projects are read-only.", FailureKind.Conflict);
     }
 
     public static void Version(Guid expected, Guid actual)

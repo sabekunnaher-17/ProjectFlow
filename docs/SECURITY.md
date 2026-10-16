@@ -5,7 +5,12 @@ checks, antiforgery validation for every cookie mutation, safe DTOs, encoded Raz
 output, rate-limited authentication, secure production cookies and generic errors
 are required implementation gates. Identity, CSRF on all MVC/API mutations, generic
 login errors, default Team Member registration, CSP and safe errors are implemented.
-Resource-level project/task checks accompany those later milestones.
+Project/organization queries enforce membership/ownership scope in SQL before
+materialization. A global Project Manager role permits creating projects only in
+organizations they joined. Explicit project-manager assignment grants management
+inside that project; it never grants access to unrelated organizations/projects.
+Owners/Admin may manage organization membership and their contained projects.
+Task checks accompany their later milestone.
 
 Account endpoints allow 20 submissions per client IP per minute per app instance,
 with no queue. Identity locks an account for 15 minutes after five failed passwords.

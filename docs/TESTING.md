@@ -26,3 +26,8 @@ before writes. It never reuses or drops a database. CI uses this mode in a dedic
 job with a disposable SQL Server 2022 container and generated, masked credentials.
 The container is removed after the job; it is unrelated to developer data/services.
 Local SQL tests remain unrun until a SQL Server instance is explicitly approved.
+
+M2's SQL Server CI job passed against newly created databases with the actual
+migration. M3 adds organization isolation, member/owner permissions, membership
+mutations, stale versions, archive protection, rendered form actions/IDs/values
+and validation preservation. Test counts and CI results must be read per commit.

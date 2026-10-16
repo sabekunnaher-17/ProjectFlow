@@ -8,7 +8,7 @@ using ProjectFlow.Infrastructure.Services;
 namespace ProjectFlow.Web.Controllers.Api;
 
 [ApiController, Route("api/v1/account"), Authorize]
-public sealed class AccountController(AccountService accounts, IAntiforgery csrf) : ControllerBase
+public sealed class AccountApiController(AccountService accounts, IAntiforgery csrf) : ControllerBase
 {
     [HttpGet("csrf"), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public IActionResult Token() => Ok(new { token = csrf.GetAndStoreTokens(HttpContext).RequestToken });

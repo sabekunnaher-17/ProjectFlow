@@ -14,6 +14,8 @@ public sealed class AccountTests
     public async Task RegistrationLoginProfileLogoutAndCsrfAreEnforced()
     {
         using var app = new WorkspaceFactory(); await app.InitializeAsync(); using var c = app.Browser();
+        Assert.Contains("action=\"/Account/Login\"", await c.GetStringAsync("/Account/Login"));
+        Assert.Contains("action=\"/Account/Register\"", await c.GetStringAsync("/Account/Register"));
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync("/api/v1/account/me")).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync("/api/v1/account/register", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync("/api/v1/account/login", new { email = "member@example.test", password = "Test-only!Secret42" })).StatusCode);

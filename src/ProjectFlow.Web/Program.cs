@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectFlow.Core.Enums;
+using ProjectFlow.Core.Interfaces;
 using ProjectFlow.Infrastructure.Data;
 using ProjectFlow.Infrastructure.Services;
 using ProjectFlow.Web.Security;
@@ -59,6 +60,10 @@ builder.Services.AddRateLimiter(o =>
 });
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddSingleton<UnknownPasswordVerifier>();
+builder.Services.AddScoped<IActor, HttpActor>();
+builder.Services.AddScoped<AccessService>();
+builder.Services.AddScoped<OrganizationService>();
+builder.Services.AddScoped<ProjectService>();
 
 var app = builder.Build();
 if (args.Contains("--bootstrap-admin"))

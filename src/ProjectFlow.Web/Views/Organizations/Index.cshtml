@@ -1,0 +1,9 @@
+@model IReadOnlyList<ProjectFlow.Core.DTOs.OrganizationDto>
+@{ ViewData["Title"] = "Organizations"; }
+<div class="mb-4"><p class="text-primary text-uppercase small fw-bold">Your workspace</p><h1>Organizations</h1><p class="text-muted">Keep people and projects organized in a shared space.</p></div>
+<div class="row g-4"><section class="col-lg-8"><div class="row g-3">
+@foreach (var o in Model) { <div class="col-md-6"><article class="card h-100"><div class="card-body"><h2 class="h5">@o.Name</h2><p>@(o.CanManage ? "You manage this workspace" : "Workspace member")</p><a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@o.Id">Open workspace</a></div></article></div> }
+@if (Model.Count == 0) { <p class="text-muted">No organizations yet. Create one to start your first project, or ask an owner to add your registered email.</p> }
+</div></section><section class="col-lg-4"><div class="card"><div class="card-body"><h2 class="h5">Create an organization</h2>
+<form asp-action="Create" method="post"><div asp-validation-summary="All" class="text-danger" role="alert"></div><label for="Name" class="form-label">Organization name</label><input id="Name" name="Name" class="form-control mb-3" required minlength="2" maxlength="120" /><button class="btn btn-primary">Create workspace</button></form>
+</div></div></section></div>

@@ -4,7 +4,7 @@
 - [x] M0: verify/push three-project solution, health checks and reproducible CI (10b78da; 2 HTTP tests passed locally).
 - [x] M1: entities, SQL Server constraints/indexes, generated migration, domain/model tests. SQL execution pending.
 - [x] M2: Identity, registration/login/profile, roles, CSRF and authorization tests (local isolated HTTP provider; SQL CI separately reports execution).
-- [ ] M3: organizations, project CRUD, membership, resource authorization.
+- [x] M3: organizations, project create/read/update/archive, membership, resource authorization.
 - [ ] M4: tasks, assignment, transitions, filters/pagination and Kanban.
 - [ ] M5: database dashboard, comments, activity, reports and safe CSV export.
 - [ ] M6: in-app notifications, deadlines and protected administration.

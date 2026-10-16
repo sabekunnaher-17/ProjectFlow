@@ -1,0 +1,10 @@
+@model ProjectFlow.Core.DTOs.OrganizationDto
+@{ ViewData["Title"] = Model.Name; }
+<a asp-action="Index">Organizations</a><h1 class="mt-3">@Model.Name</h1>
+<div class="d-flex gap-2 mb-4"><a class="btn btn-outline-primary" asp-controller="Projects" asp-action="Index" asp-route-organizationId="@Model.Id">View projects</a>
+@if (Model.CanManage || User.IsInRole(ProjectFlow.Core.Enums.Roles.Manager)) { <a class="btn btn-primary" asp-controller="Projects" asp-action="Create" asp-route-organizationId="@Model.Id">New project</a> }</div>
+<h2 class="h4">People</h2><div class="table-responsive"><table class="table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>
+@foreach (var m in Model.Members) { <tr><td>@m.DisplayName</td><td>@m.Email</td></tr> }
+</tbody></table></div>
+@if (Model.CanManage) { <section class="card mt-4"><div class="card-body"><h2 class="h5">Add a registered member</h2><p class="text-muted">Members must already have a ProjectFlow account.</p>
+<form asp-action="AddMember" asp-route-id="@Model.Id" method="post"><div asp-validation-summary="All" class="text-danger" role="alert"></div><label for="Email" class="form-label">Registered email</label><div class="input-group"><input id="Email" type="email" name="Email" class="form-control" required maxlength="254" /><button class="btn btn-primary">Add member</button></div></form></div></section> }
