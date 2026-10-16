@@ -3,12 +3,13 @@
 ```powershell
 dotnet restore --locked-mode
 dotnet build --no-restore
-dotnet test tests/ProjectFlow.IntegrationTests --no-build
+dotnet test --no-build
 ```
 
 Foundation HTTP checks run in the real ASP.NET test host and do not connect to a
-database. Domain and persistence suites will be added with their features. Unit
-test scaffolding is not counted as executed coverage. NuGet audits are enabled
+database. Domain tests cover dates, transitions, progress and concurrency rules.
+Schema tests generate actual SQL Server DDL without connecting; they verify
+constraints and key bounds, not migration execution or persistence. NuGet audits are enabled
 for all transitive dependencies; vulnerability warnings fail restore.
 
 SQL Server is unavailable locally. Never use a production or existing database for

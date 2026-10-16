@@ -12,4 +12,5 @@ jobs:
           dotnet-version: 10.0.402
       - run: dotnet restore --locked-mode
       - run: dotnet build --no-restore --configuration Release
+      - run: dotnet test tests/ProjectFlow.UnitTests --no-build --configuration Release
       - run: dotnet test tests/ProjectFlow.IntegrationTests --no-build --configuration Release

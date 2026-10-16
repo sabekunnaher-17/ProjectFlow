@@ -4,8 +4,9 @@ A project and task management application delivered incrementally by Sabekunnahe
 
 ## Current state
 
-Milestone 0: layered .NET 10 MVC foundation, liveness endpoint, security headers,
-automated host checks, reproducible dependency locks and CI. Authentication and
+Milestones 0–1: layered .NET 10 MVC foundation, liveness endpoint, security headers,
+domain rules, SQL Server model and initial migration, automated domain/host/schema
+checks, reproducible dependency locks and CI. Authentication and
 database-backed features are under implementation; the landing page is not a
 claim that those features are complete. See [the roadmap](docs/DEVELOPMENT_ROADMAP.md).
 
@@ -26,13 +27,22 @@ git clone https://github.com/sabekunnaher-17/ProjectFlow.git
 cd ProjectFlow
 dotnet restore --locked-mode
 dotnet build --no-restore
-dotnet test tests/ProjectFlow.IntegrationTests --no-build
+dotnet test --no-build
+dotnet tool restore
 dotnet run --project src/ProjectFlow.Web --urls http://localhost:5080
 ```
 
 Use User Secrets or process environment configuration for credentials; never put
-passwords into tracked configuration. Database setup/migration commands will be
-added when their implementation is verified. No database has been created or
+passwords into tracked configuration. For a **new, dedicated development database**,
+set `ConnectionStrings__DefaultConnection` in the current process to your approved
+SQL Server connection, then run:
+
+```powershell
+dotnet tool run dotnet-ef database update --project src/ProjectFlow.Infrastructure --startup-project src/ProjectFlow.Infrastructure
+```
+
+Review the target before applying; never target an existing or production database.
+The factory's LocalDB fallback is for generating migrations only. No database has been created or
 migrated locally. HTTP above is local development only; production requires TLS.
 
 Documentation: [architecture](docs/ARCHITECTURE.md), [schema](docs/DATABASE_SCHEMA.md),
