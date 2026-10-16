@@ -1,7 +1,9 @@
 # Database schema
 
-SQL Server with EF Core's `InitialSchema` migration, generated and reviewed.
-No local SQL Server engine/database is available for applying it yet.
+SQL Server with EF Core's `InitialSchema` migration, generated, reviewed and applied
+from scratch in isolated SQL Server 2022 CI. No local SQL Server database was created
+or migrated. SQL tests also enforce the assignment FK, date checks and notification
+unique index with actual rejected writes. The model has no pending migration changes.
 
 ```mermaid
 erDiagram

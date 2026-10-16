@@ -10,7 +10,6 @@ materialization. A global Project Manager role permits creating projects only in
 organizations they joined. Explicit project-manager assignment grants management
 inside that project; it never grants access to unrelated organizations/projects.
 Owners/Admin may manage organization membership and their contained projects.
-Task checks accompany their later milestone.
 Task reads require project scope; create/edit require project management, and status
 changes require the assignee or management. Assignment requires active membership
 and a composite database FK. All task/project writes use concurrency tokens; task
@@ -52,3 +51,21 @@ are the configuration boundary. No untrusted forwarded IP headers are honored.
 CI performs full-history Gitleaks scanning and NuGet transitive vulnerability checks.
 Report defects privately through the repository owner's available contact channels;
 do not publish real credentials in issues.
+
+Final audit: API authentication/authorization/rate-limit/not-found responses use
+safe ProblemDetails; MVC redirects remain local. Database race/constraint failures
+return generic conflicts. CSV escaping handles whitespace, control and BOM prefixes.
+Offline schema generation requires `-- --design-only`, selects a reserved invalid
+host and cannot implicitly connect to LocalDB; real migrations require an explicit
+process connection setting. No `Html.Raw`, sensitive EF data logging or dynamic
+user-controlled SQL is used. Raw application SQL consists of constant transaction
+application-lock statements; the test-only CREATE DATABASE identifier is generated
+and validated by the fixture, never supplied by a request.
+
+NuGet direct/transitive audit reported zero vulnerable packages at the verified code
+checkpoint. Vendored Bootstrap 5.3.3, jQuery 3.7.1 and jquery-validation 1.21.0 were
+also checked against OSV/maintainer advisories on 2026-10-16 with no matching findings.
+Only Bootstrap and first-party JS are loaded by the application layout; old licensed
+template assets are preserved. Continue auditing as new advisories are published.
+Whole-directory scanner matches in ignored Playwright build tooling are outside Git;
+the actual source snapshot and full Git history are scanned without suppressions.

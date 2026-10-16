@@ -1,9 +1,35 @@
 # Testing
 
+## Verified code checkpoint
+
+At `d015f5e` on 2026-10-16:
+
+| Suite | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| Unit | 22 | 0 | 0 |
+| Local isolated HTTP/schema | 15 | 0 | 4 |
+| SQL Server CI + real Chromium | 19 | 0 | 0 |
+
+[CI evidence](https://github.com/sabekunnaher-17/ProjectFlow/actions/runs/38863771063)
+and [Security evidence](https://github.com/sabekunnaher-17/ProjectFlow/actions/runs/38863771169).
+These are actual completed runs; later commits run the same gates again. Local
+skips are the two SQL races, SQL constraint rejection and Chromium journey.
+The final delivery report independently checks the final pushed commit's workflows.
+
+SQL evidence includes applying migrations to new databases, parallel task updates,
+parallel last-admin demotions, concurrent deadline sweeps, actual FK/date/unique
+constraint rejection and all HTTP feature tests. The browser submits real MVC
+forms and executes the status Fetch handler through Kestrel. No manual UI testing,
+local SQL Server migration or production deployment is claimed.
+
+## Reproduce
+
 ```powershell
 dotnet restore --locked-mode
 dotnet build --no-restore
 dotnet test --no-build
+dotnet format whitespace ProjectFlow.sln --verify-no-changes --no-restore --exclude src/ProjectFlow.Infrastructure/Data/Migrations
+dotnet list ProjectFlow.sln package --vulnerable --include-transitive
 ```
 
 Foundation HTTP checks run in the real ASP.NET test host and do not connect to a
@@ -26,6 +52,18 @@ before writes. It never reuses or drops a database. CI uses this mode in a dedic
 job with a disposable SQL Server 2022 container and generated, masked credentials.
 The container is removed after the job; it is unrelated to developer data/services.
 Local SQL tests remain unrun until a SQL Server instance is explicitly approved.
+
+For SQL verification, use an explicitly approved isolated test server and set
+`PROJECTFLOW_TEST_SQL_SERVER` securely. It must allow creating new test databases;
+do not supply an existing application database target. For browser execution, first
+build Release, install Chromium only in an approved test environment with
+`pwsh tests/ProjectFlow.IntegrationTests/bin/Release/net10.0/playwright.ps1 install chromium`,
+then set `PROJECTFLOW_BROWSER_TESTS=1` and run the integration project in Release.
+CI installs required browser dependencies only on its disposable Linux runner.
+Screenshot artifacts use `PROJECTFLOW_SCREENSHOTS`; local CLI outputs use ignored
+`artifacts/`, `TestResults/` or normal `bin/obj` directories.
+
+## Milestone notes and limits
 
 M2's SQL Server CI job passed against newly created databases with the actual
 migration. M3 adds organization isolation, member/owner permissions, membership
