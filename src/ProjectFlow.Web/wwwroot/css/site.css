@@ -1,4 +1,8 @@
 .auth-card { max-width: 32rem; }
+.preserve-lines { white-space: pre-wrap; }
+.eyebrow { color: #3956c6; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.kanban-board { display: grid; grid-template-columns: repeat(5, minmax(230px, 1fr)); gap: 1rem; overflow-x: auto; }
+.kanban-column { background: #eef1f6; padding: 1rem; border-radius: .75rem; }
 
 html {
   font-size: 14px;

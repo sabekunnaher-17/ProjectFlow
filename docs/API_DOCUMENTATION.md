@@ -34,8 +34,23 @@ Lists return Items/Total/Page/PageSize/Pages. Projects include a Version GUID; s
 the latest Version on mutations or receive 409. Cross-scope IDs return 404, visible
 resources without mutation permission return 403. Project organization is immutable.
 
-Upcoming: `/api/v1/tasks`, `/tasks/{id}/comments`, `/notifications`, `/dashboard`,
-`/reports`, `/admin/users`.
+Task endpoints implemented (CI verification pending at M4):
+
+| Method | Route under `/api/v1` | Behavior |
+| --- | --- | --- |
+| GET/POST | `/tasks` | Scoped paginated list / management creates Todo task |
+| GET/PUT | `/tasks/{id}` | Scoped detail / management edits active task with Version |
+| PUT | `/tasks/{id}/status` | Assignee/management, Status + Version, allowed transition |
+
+Task filters: Keyword, ProjectId, AssigneeId, Status, Priority, From/To (due-date
+range), Overdue, Mine, Sort (due/priority/title), Page and PageSize. Limits match
+projects. Terminal tasks must be reopened by management before editing. A completed
+project must be reopened before task changes; archived projects remain read-only.
+Planning dates use the UTC calendar; event timestamps are UTC offsets. Project/task
+mutation concurrency protects date/membership/archiving checks against stale edits.
+
+Upcoming: `/api/v1/tasks/{id}/comments`, `/notifications`, `/dashboard`, `/reports`,
+`/admin/users`.
 
 Cookie-authenticated mutations require an antiforgery header, including APIs.
 Protected API requests return 401/403 rather than HTML login redirects. DTOs and

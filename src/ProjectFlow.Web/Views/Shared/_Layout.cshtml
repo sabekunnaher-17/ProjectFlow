@@ -1,8 +1,10 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <title>@ViewData["Title"] - ProjectFlow</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -22,6 +24,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Projects" asp-action="Index">Projects</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Tasks" asp-action="Index" asp-route-mine="true">My tasks</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Organizations" asp-action="Index">Organizations</a></li>
                         }
                         <li class="nav-item">

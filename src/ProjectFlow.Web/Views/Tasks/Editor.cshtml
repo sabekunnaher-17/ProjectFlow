@@ -1,0 +1,14 @@
+@using ProjectFlow.Core.DTOs
+@using ProjectFlow.Core.Enums
+@model TaskRequest
+@{ var editing = ViewData["Id"] is Guid; var project = (ProjectDto)ViewData["Project"]!; ViewData["Title"] = editing ? "Edit task" : "New task"; }
+<h1>@ViewData["Title"]</h1><p class="text-muted">@project.Name · Dates must fit @project.StartDate.ToString("yyyy-MM-dd") – @project.EndDate.ToString("yyyy-MM-dd")</p>
+<form asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@ViewData["Id"]" method="post" class="card"><div class="card-body">
+<div asp-validation-summary="All" class="text-danger" role="alert"></div><input asp-for="ProjectId" type="hidden" /><input asp-for="Version" type="hidden" />
+<div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" required minlength="2" maxlength="160" /></div>
+<div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="5" maxlength="5000"></textarea></div>
+<div class="row g-3"><div class="col-md-6"><label asp-for="AssigneeId" class="form-label">Assignee</label><select asp-for="AssigneeId" class="form-select"><option value="">Unassigned</option>@foreach (var m in project.Members) { <option value="@m.Id">@m.DisplayName</option> }</select></div>
+<div class="col-md-6"><label asp-for="Priority" class="form-label"></label><select asp-for="Priority" asp-items="Html.GetEnumSelectList<TaskPriority>()" class="form-select"></select></div>
+<div class="col-md-6"><label asp-for="StartDate" class="form-label">Start date</label><input asp-for="StartDate" type="date" class="form-control" min="@project.StartDate.ToString("yyyy-MM-dd")" max="@project.EndDate.ToString("yyyy-MM-dd")" required /></div>
+<div class="col-md-6"><label asp-for="DueDate" class="form-label">Due date</label><input asp-for="DueDate" type="date" class="form-control" min="@project.StartDate.ToString("yyyy-MM-dd")" max="@project.EndDate.ToString("yyyy-MM-dd")" required /></div></div>
+<div class="mt-4 d-flex gap-2"><button class="btn btn-primary">Save task</button><a asp-action="Index" asp-route-projectId="@project.Id" class="btn btn-outline-secondary">Cancel</a></div></div></form>

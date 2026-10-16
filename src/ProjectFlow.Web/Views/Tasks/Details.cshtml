@@ -1,0 +1,10 @@
+@using TaskState = ProjectFlow.Core.Enums.TaskStatus
+@model ProjectFlow.Core.DTOs.TaskDto
+@{ ViewData["Title"] = Model.Title; }
+<a asp-action="Index" asp-route-projectId="@Model.ProjectId">@Model.ProjectName tasks</a>
+<div class="d-flex justify-content-between align-items-start mt-3"><div><p class="eyebrow">@Model.Priority priority · @Model.Status</p><h1>@Model.Title</h1><p class="text-muted">Assigned to @Model.AssigneeName · Due @Model.DueDate.ToString("dd MMM yyyy")</p></div>
+@if (Model.CanManage && Model.Status is not TaskState.Completed and not TaskState.Cancelled) { <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit task</a> }</div>
+@if (Model.Overdue) { <p class="badge text-bg-danger">Overdue</p> }
+<section class="card mb-4"><div class="card-body"><h2 class="h5">Description</h2><p class="preserve-lines">@(string.IsNullOrEmpty(Model.Description) ? "No description added." : Model.Description)</p><p class="text-muted mb-0">Start @Model.StartDate.ToString("dd MMM yyyy") @if (Model.CompletedAt.HasValue) { <span>· Completed @Model.CompletedAt.Value.ToString("u")</span> }</p></div></section>
+@if (Model.CanChangeStatus && Model.AllowedStatuses.Count > 0) { <form asp-action="Status" asp-route-id="@Model.Id" method="post" class="card p-3" data-task-status="@Model.Id"><input type="hidden" name="Version" value="@Model.Version" /><label for="status" class="form-label">Move task</label><div class="input-group"><select id="status" name="Status" class="form-select">@foreach (var s in Model.AllowedStatuses) { <option value="@((int)s)">@s</option> }</select><button class="btn btn-primary">Update status</button></div><p class="small text-muted mb-0 mt-2">Cancellation and reopening require project management permission.</p></form> }
+<div id="async-feedback" class="mt-3" role="status" aria-live="polite"></div>

@@ -31,3 +31,10 @@ M2's SQL Server CI job passed against newly created databases with the actual
 migration. M3 adds organization isolation, member/owner permissions, membership
 mutations, stale versions, archive protection, rendered form actions/IDs/values
 and validation preservation. Test counts and CI results must be read per commit.
+
+During M4, Windows Smart App Control blocked the newly compiled Infrastructure DLL
+(0x800711C7), preventing all local integration tests from loading. Code Integrity
+events confirmed the cause. Security settings were not changed. Runtime verification
+therefore runs on a separate GitHub branch before integration into main. Local
+domain tests remain runnable. The SQL parallel-write test is explicitly skipped
+when no SQL test server is configured; CI runs it with the isolated SQL fixture.

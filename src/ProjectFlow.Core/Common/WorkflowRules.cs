@@ -20,9 +20,14 @@ public static class WorkflowRules
 
     public static void Transition(WorkStatus from, WorkStatus to, bool canManage)
     {
-        if (!Enum.IsDefined(from) || !Enum.IsDefined(to)) throw new DomainException("Invalid task status.");
-        if (from == to) return;
-        var allowed = from switch
+        if (!CanTransition(from, to, canManage)) throw new DomainException("This task status transition is not allowed.");
+    }
+
+    public static bool CanTransition(WorkStatus from, WorkStatus to, bool canManage)
+    {
+        if (!Enum.IsDefined(from) || !Enum.IsDefined(to)) return false;
+        if (from == to) return true;
+        return from switch
         {
             WorkStatus.Todo => to is WorkStatus.InProgress || (canManage && to == WorkStatus.Cancelled),
             WorkStatus.InProgress => to is WorkStatus.Todo or WorkStatus.InReview || (canManage && to == WorkStatus.Cancelled),
@@ -31,7 +36,6 @@ public static class WorkflowRules
             WorkStatus.Cancelled => canManage && to == WorkStatus.Todo,
             _ => false
         };
-        if (!allowed) throw new DomainException("This task status transition is not allowed.");
     }
 
     public static int Progress(IEnumerable<WorkStatus> statuses)

@@ -64,6 +64,7 @@ builder.Services.AddScoped<IActor, HttpActor>();
 builder.Services.AddScoped<AccessService>();
 builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<TaskService>();
 
 var app = builder.Build();
 if (args.Contains("--bootstrap-admin"))
